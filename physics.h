@@ -17,10 +17,10 @@ struct jet_physics{
 	float const 
 		jerkback  = 0.1, // ammount the orientation vector is changed by velocity vector
 		stability = 0.1, // ammount the velocity vector is changed by orientation vector
-		pitch_up_speed   = 0.05f,
+		pitch_up_speed   = 0.04f,
 		pitch_down_speed = 0.02f,
 		yaw_speed        = 0.01f,
-		roll_speed       = 0.05f;
+		roll_speed       = 0.06f;
 };
 
 void jet_input(GLFWwindow* window, transform &trans, jet_physics &phy){

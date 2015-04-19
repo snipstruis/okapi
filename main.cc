@@ -22,6 +22,31 @@ using namespace std;
 using glm::vec3;
 using glm::mat4;
 
+
+void uniform_set(GLint loc, mat4 data){
+	float array[16] = {
+		data[0][0],data[0][1],data[0][2],data[0][3],
+		data[1][0],data[1][1],data[1][2],data[1][3],
+		data[2][0],data[2][1],data[2][2],data[2][3],
+		data[3][0],data[3][1],data[3][2],data[3][3]
+	};
+	glUniformMatrix4fv(loc,1,false,array);
+}
+
+void uniform_set(GLint loc,vec3 data){
+	glUniform3f(loc,data.x,data.y,data.z);
+}
+
+GLuint projection_uniform;
+
+void framebuffer_size_callback(GLFWwindow* window, int width,int height){
+	glViewport(0, 0, width, height);
+	if(projection_uniform!=0)
+		uniform_set(projection_uniform, 
+			glm::perspective(1.f,float(width)/float(height),0.1f,1000.f));
+}
+
+
 GLFWwindow* init(int width, int height){
 	if (!glfwInit()){
 		cout<<FAIL"GLFW failed to initialize\n";
@@ -60,6 +85,8 @@ GLFWwindow* init(int width, int height){
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);glfwSetInputMode(window, GLFW_STICKY_KEYS, 1);
 	glCullFace(GL_FRONT);
+
+	glfwSetFramebufferSizeCallback(window,framebuffer_size_callback);
 
 	return window;
 }
@@ -104,19 +131,7 @@ GLint uniform_or_die(GLuint program, char const * const name){
 	return ret;
 }
 
-void uniform_set(GLint loc, mat4 data){
-	float array[16] = {
-		data[0][0],data[0][1],data[0][2],data[0][3],
-		data[1][0],data[1][1],data[1][2],data[1][3],
-		data[2][0],data[2][1],data[2][2],data[2][3],
-		data[3][0],data[3][1],data[3][2],data[3][3]
-	};
-	glUniformMatrix4fv(loc,1,false,array);
-}
 
-void uniform_set(GLint loc,vec3 data){
-	glUniform3f(loc,data.x,data.y,data.z);
-}
 
 unsigned const jet_id = 0;
 
@@ -125,7 +140,6 @@ struct flat_shaded_renderable{
 	mesh      m;
 	vec3      c;
 };
-
 
 vector<flat_shaded_renderable> gen_cubes(int width, int height, int depth){
 	vector<flat_shaded_renderable> ret;
@@ -157,7 +171,6 @@ flat_shaded_renderable gen_jet(){
 	return r;
 }
 
-
 int main(){
 	auto window = init(800,600);
 
@@ -166,7 +179,7 @@ int main(){
 
 	auto color_uniform      = uniform_or_die(prog,"color");
 	auto modelview_uniform  = uniform_or_die(prog,"modelview");
-	auto projection_uniform = uniform_or_die(prog,"projection");
+	     projection_uniform = uniform_or_die(prog,"projection");
 
 	uniform_set(projection_uniform, glm::perspective(1.f,4.f/3.f,0.1f,1000.f));
 
