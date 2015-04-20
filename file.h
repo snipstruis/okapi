@@ -17,7 +17,8 @@ char* read_file(std::string filename){
 	static struct stat filestat;
 	if(fstat(fd,&filestat)==-1) return NULL;
 	size_t const size = (size_t)filestat.st_size;
-	char* str = (char*)malloc(size);
+	char* str = (char*)malloc(size+1);
+	str[size]='\0';
 	if(read(fd,str,size)!=(ssize_t)size){free(str); return NULL;}
 	if(close(fd)==-1){free(str); return NULL;}
 	return str;
