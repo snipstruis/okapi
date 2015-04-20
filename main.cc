@@ -171,6 +171,27 @@ flat_shaded_renderable gen_jet(){
 	return r;
 }
 
+vector<flat_shaded_renderable>load_level(char* filename){
+	auto const scaling = 3.f;
+	auto file = read_file_or_die(filename);
+	auto vertices = get_vertices(file);
+	free(file);
+	vector<flat_shaded_renderable> ret;
+	for(int i=0; i<vertices.size(); i+=3){
+		flat_shaded_renderable r;
+		r.c = vec3(float(rand())/float(RAND_MAX),
+				   float(rand())/float(RAND_MAX),
+				   float(rand())/float(RAND_MAX));
+		r.m = mesh_from_file("cube.obj");
+		r.t.position = vec3(vertices[i  ]*scaling,
+					        vertices[i+1]*scaling,
+							vertices[i+2]*scaling);
+		r.t.scale    = vec3(0.2,0.2,0.2);
+		ret.push_back(r);
+	}
+	return ret;
+}
+
 int main(){
 	auto window = init(800,600);
 
@@ -185,10 +206,12 @@ int main(){
 
 	vector<flat_shaded_renderable> renderables;
 	renderables.push_back(gen_jet());
-	{	auto cubes = gen_cubes(5,5,5);
+	{	auto cubes = load_level("level.obj");
 		renderables.insert(renderables.end(), cubes.begin(), cubes.end());
 	}
 	
+	
+
 	transform camera;
 	camera.position    = vec3(0,0,-5);
 	camera.scale       = vec3(1,1,1);
