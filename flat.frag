@@ -14,3 +14,4 @@ void main(){
 	vec3 lightangle = normalize(vec3(1.0,1.0,1.0));
 	fragColor = vec4(color*lighting(normal,lightangle),1.0);
 }
+

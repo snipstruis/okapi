@@ -11,3 +11,4 @@ void main(void) {
 	vec4 pos4 = modelview * vec4(vertex,1);
 	pos = pos4.xyz;
 }
+
