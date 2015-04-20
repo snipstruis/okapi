@@ -40,6 +40,7 @@ void uniform_set(GLint loc,vec3 data){
 GLuint projection_uniform;
 
 void framebuffer_size_callback(GLFWwindow* window, int width,int height){
+	(void)window;
 	glViewport(0, 0, width, height);
 	if(projection_uniform!=0)
 		uniform_set(projection_uniform, 
@@ -97,6 +98,7 @@ char* read_file_or_die(const char* const filename){
 		cout<<FAIL"could not read "<<filename<<endl;
 		exit(EXIT_FAILURE);
 	}
+	cout<<OK<<"read "<<GRN<<filename<<CLR<<"\n";
 	return ret;
 }
 
@@ -125,13 +127,11 @@ GLint uniform_or_die(GLuint program, char const * const name){
 	GLint ret = glGetUniformLocation(program,name);
 	if(ret==-1){
 		std::cout<<FAIL
-		"failed to find uniform \""<<name<<"\" in shader program\n";
+		"failed to find uniform "<<RED<<name<<CLR<<" in shader program\n";
 		exit(EXIT_FAILURE);
-	}else cout<<OK"found uniform \""<<name<<"\"\n";
+	}else cout<<OK"found uniform "<<GRN<<name<<CLR<<endl;
 	return ret;
 }
-
-
 
 unsigned const jet_id = 0;
 
@@ -171,18 +171,19 @@ flat_shaded_renderable gen_jet(){
 	return r;
 }
 
-vector<flat_shaded_renderable>load_level(char* filename){
+vector<flat_shaded_renderable>load_level(char const * const filename){
 	auto const scaling = 3.f;
-	auto file = read_file_or_die(filename);
-	auto vertices = get_vertices(file);
-	free(file);
+	auto level = read_file_or_die(filename);
+	auto vertices = get_vertices(level);
+	free(level);
+	auto cube = mesh_from_file("cube.obj");
 	vector<flat_shaded_renderable> ret;
-	for(int i=0; i<vertices.size(); i+=3){
+	for(size_t i=0; i<vertices.size(); i+=3){
 		flat_shaded_renderable r;
 		r.c = vec3(float(rand())/float(RAND_MAX),
 				   float(rand())/float(RAND_MAX),
 				   float(rand())/float(RAND_MAX));
-		r.m = mesh_from_file("cube.obj");
+		r.m = cube;
 		r.t.position = vec3(vertices[i  ]*scaling,
 					        vertices[i+1]*scaling,
 							vertices[i+2]*scaling);
@@ -209,8 +210,6 @@ int main(){
 	{	auto cubes = load_level("level.obj");
 		renderables.insert(renderables.end(), cubes.begin(), cubes.end());
 	}
-	
-	
 
 	transform camera;
 	camera.position    = vec3(0,0,-5);
@@ -219,6 +218,8 @@ int main(){
 	jet_physics phy;
 	phy.velocity_direction = quat(1,0,0,0);
 	phy.speed = 10;
+
+	cout<<INFO<<"initialisation complete, starting main loop."<<endl;
 
 	while(true){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
